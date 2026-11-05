@@ -1,0 +1,97 @@
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Activity, ArrowDownRight, ArrowUpRight, Bell, Box, ChevronDown, ChevronLeft,
+  ChevronRight, CircleHelp, Command, CreditCard, ExternalLink, Eye, Filter,
+  LayoutDashboard, LifeBuoy, LogOut, Menu, Moon, MoreHorizontal, Package,
+  Plus, Search, Settings, ShoppingBag, ShoppingCart, Sun, Truck, Users,
+  Wallet, X, Zap, CheckCircle2, Clock3, AlertTriangle, PlugZap, BarChart3
+} from "lucide-react";
+import {
+  Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis
+} from "recharts";
+
+type Page = "Visão geral" | "Pedidos" | "Produtos" | "Estoque" | "Clientes" | "Financeiro" | "Expedição" | "Relatórios" | "Integrações" | "Configurações" | "Loja";
+const nav: {label: Page; icon: any; group: string}[] = [
+  {label:"Visão geral",icon:LayoutDashboard,group:"WORKSPACE"},
+  {label:"Pedidos",icon:ShoppingCart,group:"WORKSPACE"},
+  {label:"Produtos",icon:Package,group:"WORKSPACE"},
+  {label:"Estoque",icon:Box,group:"WORKSPACE"},
+  {label:"Clientes",icon:Users,group:"GESTÃO"},
+  {label:"Financeiro",icon:Wallet,group:"GESTÃO"},
+  {label:"Expedição",icon:Truck,group:"GESTÃO"},
+  {label:"Relatórios",icon:BarChart3,group:"GESTÃO"},
+  {label:"Integrações",icon:PlugZap,group:"SISTEMA"},
+  {label:"Configurações",icon:Settings,group:"SISTEMA"},
+  {label:"Loja",icon:ShoppingBag,group:"SISTEMA"}
+];
+const chartData = [
+  {day:"01",sales:3200,orders:18},{day:"03",sales:4100,orders:24},{day:"05",sales:3600,orders:21},
+  {day:"07",sales:5200,orders:31},{day:"09",sales:4700,orders:28},{day:"11",sales:6100,orders:36},
+  {day:"13",sales:5600,orders:33},{day:"15",sales:7200,orders:42},{day:"17",sales:6800,orders:39},
+  {day:"19",sales:8300,orders:48},{day:"21",sales:7600,orders:44},{day:"23",sales:9400,orders:56},
+  {day:"25",sales:8800,orders:51},{day:"27",sales:10600,orders:62},{day:"29",sales:9800,orders:58}
+];
+const orders = [
+  {id:"#MLB-83921",customer:"Mariana Costa",product:"Fone Bluetooth Pro",date:"Hoje, 14:32",value:"R$ 289,90",status:"A preparar",tone:"amber"},
+  {id:"#MLB-83920",customer:"Rafael Mendes",product:"Suporte Articulado",date:"Hoje, 13:18",value:"R$ 159,00",status:"Enviado",tone:"green"},
+  {id:"#MLB-83919",customer:"Camila Oliveira",product:"Teclado Mecânico",date:"Hoje, 11:45",value:"R$ 429,90",status:"Aguardando",tone:"blue"},
+  {id:"#MLB-83918",customer:"Lucas Ferreira",product:"Mouse sem fio",date:"Hoje, 10:06",value:"R$ 119,90",status:"Entregue",tone:"green"}
+];
+const products = [
+  {name:"Fone Bluetooth Pro",sku:"SCH-FON-001",price:"R$ 289,90",stock:42,sold:128,tag:"Mais vendido"},
+  {name:"Teclado Mecânico",sku:"SCH-TEC-002",price:"R$ 429,90",stock:8,sold:76,tag:"Estoque baixo"},
+  {name:"Suporte Articulado",sku:"SCH-SUP-003",price:"R$ 159,00",stock:31,sold:64,tag:"Em alta"}
+];
+function money(n:number){return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0})}
+export default function App(){
+  const [page,setPage]=useState<Page>("Visão geral");
+  const [dark,setDark]=useState(true);
+  const [mobile,setMobile]=useState(false);
+  const [period,setPeriod]=useState("Últimos 30 dias");
+  const [query,setQuery]=useState("");
+  const [notice,setNotice]=useState("");
+  const [storeTab,setStoreTab]=useState("Destaques");
+  const [connected,setConnected]=useState(false);
+  const theme=dark?"dark":"light";
+  const filteredOrders=useMemo(()=>orders.filter(o=>(o.id+o.customer+o.product+o.status).toLowerCase().includes(query.toLowerCase())),[query]);
+  const selectPage=(p:Page)=>{setPage(p);setMobile(false)};
+  return <div className={`app ${theme}`}>
+    {mobile&&<button className="mobile-scrim" onClick={()=>setMobile(false)} aria-label="Fechar menu"/>}
+    <aside className={`sidebar ${mobile?"open":""}`}>
+      <div className="brand"><div className="brand-mark"><span>S</span></div><div><b>schinayder</b><small>COMMERCE OS</small></div><button className="icon-btn close-mobile" onClick={()=>setMobile(false)}><X size={17}/></button></div>
+      <button className="workspace-switch"><div className="workspace-avatar">S</div><span><b>Schinayder</b><small>Loja principal</small></span><ChevronDown size={15}/></button>
+      <div className="nav-scroll">{["WORKSPACE","GESTÃO","SISTEMA"].map(group=><div className="nav-group" key={group}><div className="nav-label">{group}</div>{nav.filter(n=>n.group===group).map(n=><button key={n.label} onClick={()=>selectPage(n.label)} className={`nav-item ${page===n.label?"active":""}`}><n.icon size={17}/><span>{n.label}</span>{n.label==="Pedidos"&&<i>4</i>}</button>)}</div>)}</div>
+      <div className="sidebar-bottom"><div className="plan-card"><div className="plan-icon"><Zap size={15}/></div><div><b>Seu espaço de vendas</b><small>Organize tudo em um só lugar.</small></div></div><button className="nav-item"><CircleHelp size={17}/><span>Central de ajuda</span></button><div className="user-row"><div className="user-avatar">S</div><div className="user-info"><b>Schinayder</b><small>Administrador</small></div><button className="icon-btn" onClick={()=>setNotice("Opções da conta em breve.")}><MoreHorizontal size={18}/></button></div></div>
+    </aside>
+    <main className="main">
+      <header className="topbar"><div className="top-left"><button className="icon-btn menu-btn" onClick={()=>setMobile(true)}><Menu size={20}/></button><div className="breadcrumbs"><span>Workspace</span><ChevronRight size={14}/><b>{page}</b></div></div><div className="top-actions"><label className="global-search"><Search size={16}/><input placeholder="Buscar qualquer coisa..." value={query} onChange={e=>setQuery(e.target.value)}/><kbd>⌘ K</kbd></label><button className="icon-btn theme-btn" onClick={()=>setDark(!dark)} title="Alternar tema">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><button className="icon-btn notification" onClick={()=>setNotice("Você está em dia. Nenhuma notificação nova.")}><Bell size={18}/><em/></button><div className="top-avatar">S</div></div></header>
+      <div className="content">
+        {page==="Loja"?<Storefront onBack={()=>selectPage("Visão geral")} tab={storeTab} setTab={setStoreTab}/>:page==="Visão geral"?<Dashboard period={period} setPeriod={setPeriod} onPage={selectPage}/>:<ModulePage page={page} query={query} filteredOrders={filteredOrders} connected={connected} setConnected={setConnected} onPage={selectPage}/>}
+        <footer className="footer"><span>© 2026 Schinayder Commerce OS</span><span><i className="status-dot"/> Todos os sistemas operacionais <span className="footer-divider">·</span> Dados demonstrativos</span></footer>
+      </div>
+    </main>
+    {notice&&<motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} className="toast"><CheckCircle2 size={17}/>{notice}<button onClick={()=>setNotice("")}><X size={15}/></button></motion.div>}
+  </div>
+}
+function Dashboard({period,setPeriod,onPage}:{period:string;setPeriod:(s:string)=>void;onPage:(p:Page)=>void}){
+  const kpis=[{label:"Faturamento bruto",value:"R$ 48.294,80",change:"+12,8%",up:true,icon:Wallet,color:"violet",sub:"vs. período anterior"},{label:"Pedidos recebidos",value:"1.284",change:"+8,2%",up:true,icon:ShoppingBag,color:"blue",sub:"vs. período anterior"},{label:"Ticket médio",value:"R$ 37,61",change:"+4,6%",up:true,icon:CreditCard,color:"cyan",sub:"vs. período anterior"},{label:"Produtos ativos",value:"86",change:"3 baixos",up:false,icon:Package,color:"orange",sub:"estoque precisa de atenção"}];
+  return <><div className="page-heading"><div><div className="eyebrow"><span className="live-dot"/> PAINEL DE CONTROLE</div><h1>Visão geral<span className="heading-period">.</span></h1><p>Acompanhe o desempenho da sua operação em um só lugar.</p></div><div className="heading-actions"><button className="btn btn-secondary" onClick={()=>onPage("Relatórios")}><BarChart3 size={16}/> Relatórios</button><button className="btn btn-primary" onClick={()=>onPage("Produtos")}><Plus size={16}/> Novo produto</button></div></div>
+  <div className="welcome-strip"><div className="welcome-icon"><Zap size={18}/></div><div><b>Olá, Schinayder! 👋</b><span>Sua operação está pronta para mais um dia de resultados.</span></div><span className="welcome-date">QUARTA-FEIRA, 05 NOV</span></div>
+  <div className="section-head"><div><h2>Indicadores principais</h2><p>Resumo do desempenho da sua loja</p></div><select className="select-control" value={period} onChange={e=>setPeriod(e.target.value)}><option>Últimos 30 dias</option><option>Últimos 7 dias</option><option>Hoje</option></select></div>
+  <div className="kpi-grid">{kpis.map((k,i)=><motion.div className="kpi-card" key={k.label} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{delay:i*.06}}><div className="kpi-top"><span>{k.label}</span><div className={`kpi-icon ${k.color}`}><k.icon size={17}/></div></div><div className="kpi-value">{k.value}</div><div className="kpi-bottom"><span className={`change ${k.up?"positive":"warning"}`}>{k.up?<ArrowUpRight size={14}/>:<AlertTriangle size={13}/>} {k.change}</span><span>{k.sub}</span></div></motion.div>)}</div>
+  <div className="analytics-grid"><section className="panel sales-panel"><div className="panel-head"><div><h2>Visão de vendas</h2><p>Receita ao longo do período selecionado</p></div><button className="icon-btn"><MoreHorizontal size={19}/></button></div><div className="chart-summary"><strong>R$ 48.294,80</strong><span className="change positive"><ArrowUpRight size={14}/> 12,8%</span><small>em relação ao período anterior</small></div><div className="chart-wrap"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chartData} margin={{top:12,right:8,left:-20,bottom:0}}><defs><linearGradient id="salesFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8875ff" stopOpacity={0.28}/><stop offset="100%" stopColor="#8875ff" stopOpacity={0}/></linearGradient></defs><CartesianGrid strokeDasharray="3 5" vertical={false} stroke="var(--line)"/><XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill:"var(--muted)",fontSize:11}}/><YAxis axisLine={false} tickLine={false} tick={{fill:"var(--muted)",fontSize:11}} tickFormatter={v=>`${v/1000}k`}/><Tooltip contentStyle={{background:"var(--surface)",border:"1px solid var(--line)",borderRadius:12,color:"var(--text)"}} formatter={(v:any)=>[money(v),"Faturamento"]}/><Area type="monotone" dataKey="sales" stroke="#8875ff" strokeWidth={2.5} fill="url(#salesFill)" activeDot={{r:5,strokeWidth:0}}/></AreaChart></ResponsiveContainer></div><div className="chart-legend"><span><i className="legend-dot violet-dot"/> Faturamento</span><span>Dados ilustrativos</span></div></section>
+  <section className="panel channel-panel"><div className="panel-head"><div><h2>Origem dos pedidos</h2><p>Distribuição por canal de venda</p></div><button className="icon-btn"><MoreHorizontal size={19}/></button></div><div className="channel-total"><strong>1.284</strong><span>pedidos no período</span></div><div className="channel-bars"><div><div className="bar-label"><span><i className="channel-dot ml"/> Mercado Livre</span><b>78%</b></div><div className="bar-track"><i style={{width:"78%",background:"#ffe600"}}/></div></div><div><div className="bar-label"><span><i className="channel-dot direct"/> Loja própria</span><b>22%</b></div><div className="bar-track"><i style={{width:"22%",background:"#8875ff"}}/></div></div></div><div className="channel-note"><Activity size={16}/><span>Conecte seus canais para consolidar os resultados.</span></div><button className="text-link" onClick={()=>onPage("Integrações")}>Gerenciar integrações <ChevronRight size={14}/></button></section></div>
+  <div className="bottom-grid"><section className="panel orders-panel"><div className="panel-head"><div><h2>Pedidos recentes</h2><p>Acompanhe as últimas movimentações</p></div><button className="text-link" onClick={()=>onPage("Pedidos")}>Ver todos <ChevronRight size={14}/></button></div><div className="table-scroll"><table><thead><tr><th>PEDIDO</th><th>CLIENTE</th><th>PRODUTO</th><th>VALOR</th><th>STATUS</th></tr></thead><tbody>{orders.slice(0,3).map(o=><tr key={o.id}><td className="order-id">{o.id}</td><td>{o.customer}</td><td>{o.product}</td><td className="table-value">{o.value}</td><td><span className={`status ${o.tone}`}>{o.status}</span></td></tr>)}</tbody></table></div></section>
+  <section className="panel attention-panel"><div className="panel-head"><div><h2>Atenção necessária</h2><p>O que merece seu olhar</p></div><span className="attention-count">2</span></div><div className="attention-item"><div className="attention-symbol amber-bg"><Package size={16}/></div><div><b>Estoque baixo</b><span>3 produtos precisam de reposição.</span></div><button onClick={()=>onPage("Estoque")}><ChevronRight size={16}/></button></div><div className="attention-item"><div className="attention-symbol blue-bg"><Clock3 size={16}/></div><div><b>Pedidos pendentes</b><span>4 pedidos aguardam processamento.</span></div><button onClick={()=>onPage("Pedidos")}><ChevronRight size={16}/></button></div></section></div>
+  </>
+}
+function ModulePage({page,query,filteredOrders,connected,setConnected,onPage}:{page:Page;query:string;filteredOrders:typeof orders;connected:boolean;setConnected:(v:boolean)=>void;onPage:(p:Page)=>void}){
+  const desc:Record<string,string>={"Pedidos":"Gerencie vendas, pagamentos e o fluxo de atendimento.","Produtos":"Organize seu catálogo e acompanhe o desempenho dos anúncios.","Estoque":"Tenha visibilidade da disponibilidade e reposição dos produtos.","Clientes":"Consulte o histórico e o relacionamento com seus compradores.","Financeiro":"Acompanhe receitas, custos, taxas e resultados da operação.","Expedição":"Monitore preparação, envio e entrega dos pedidos.","Relatórios":"Transforme os dados da operação em decisões melhores.","Integrações":"Conecte seus canais e centralize a operação.","Configurações":"Personalize sua loja e gerencie as preferências da plataforma."};
+  return <><div className="page-heading"><div><div className="eyebrow">SCHINAYDER / WORKSPACE</div><h1>{page}<span className="heading-period">.</span></h1><p>{desc[page]}</p></div><div className="heading-actions"><button className="btn btn-secondary"><Filter size={16}/> Filtros</button><button className="btn btn-primary" onClick={()=>page==="Produtos"?onPage("Loja"):undefined}><Plus size={16}/> {page==="Produtos"?"Novo produto":"Nova ação"}</button></div></div>
+  {page==="Integrações"?<section className="panel integration-card"><div className="integration-brand"><div className="ml-logo">M</div><div><h2>Mercado Livre</h2><p>Sincronize anúncios, pedidos, estoque e envios.</p></div><span className={`status ${connected?"green":"amber"}`}>{connected?"Conectado (demonstração)":"Não conectado"}</span></div><div className="integration-features"><div><CheckCircle2/> Sincronização de anúncios</div><div><CheckCircle2/> Importação de pedidos</div><div><CheckCircle2/> Atualização de estoque</div><div><CheckCircle2/> Acompanhamento de envios</div></div><div className="integration-warning"><AlertTriangle size={17}/><span>Esta tela é uma prévia. A conexão OAuth oficial ainda não foi implementada. Nenhuma conta será autorizada por este botão.</span></div><button className="btn btn-primary" onClick={()=>setConnected(!connected)}>{connected?"Desfazer demonstração":"Visualizar estado conectado"} <ExternalLink size={15}/></button></section>:page==="Pedidos"?<section className="panel"><div className="panel-head"><div><h2>Todos os pedidos</h2><p>{filteredOrders.length} registros demonstrativos</p></div><button className="btn btn-secondary"><Filter size={15}/> Filtrar</button></div><div className="table-scroll"><table><thead><tr><th>PEDIDO</th><th>CLIENTE</th><th>PRODUTO</th><th>DATA</th><th>VALOR</th><th>STATUS</th></tr></thead><tbody>{filteredOrders.map(o=><tr key={o.id}><td className="order-id">{o.id}</td><td>{o.customer}</td><td>{o.product}</td><td>{o.date}</td><td className="table-value">{o.value}</td><td><span className={`status ${o.tone}`}>{o.status}</span></td></tr>)}</tbody></table></div></section>:page==="Produtos"||page==="Estoque"?<section className="panel"><div className="panel-head"><div><h2>{page==="Produtos"?"Catálogo de produtos":"Níveis de estoque"}</h2><p>Dados ilustrativos para validar a interface</p></div><button className="btn btn-secondary"><Filter size={15}/> Filtrar</button></div><div className="table-scroll"><table><thead><tr><th>PRODUTO</th><th>SKU</th><th>PREÇO</th><th>ESTOQUE</th><th>VENDIDOS</th><th>SINALIZAÇÃO</th></tr></thead><tbody>{products.map(p=><tr key={p.sku}><td className="product-cell"><div className="product-thumb"><Package size={18}/></div><b>{p.name}</b></td><td>{p.sku}</td><td className="table-value">{p.price}</td><td><b>{p.stock}</b> un.</td><td>{p.sold}</td><td><span className={`status ${p.stock<10?"amber":"green"}`}>{p.tag}</span></td></tr>)}</tbody></table></div></section>:<section className="empty-state panel"><div className="empty-icon"><pageIcon page={page}/></div><h2>Seu espaço de {page.toLowerCase()} está pronto.</h2><p>Estamos preparando este módulo. Na próxima etapa, vamos conectar dados reais e ativar as ações desta área.</p><button className="btn btn-primary" onClick={()=>onPage("Visão geral")}>Voltar ao dashboard <ChevronRight size={15}/></button></section>}</>
+}
+function pageIcon({page}:{page:Page}){const item=nav.find(n=>n.label===page);const Icon=item?.icon||LayoutDashboard;return <Icon size={25}/>}
+function Storefront({onBack,tab,setTab}:{onBack:()=>void;tab:string;setTab:(s:string)=>void}){
+  return <div className="storefront"><div className="store-top"><button className="text-link" onClick={onBack}><ChevronLeft size={15}/> Voltar ao painel</button><span className="store-preview-label">PRÉVIA DA LOJA PÚBLICA</span></div><div className="store-hero"><div className="store-nav"><div className="store-logo">S<span>.</span></div><div className="store-links"><span>Início</span><span>Produtos</span><span>Sobre</span><span>Contato</span></div><button className="btn btn-secondary"><Search size={15}/> Buscar</button></div><div className="hero-copy"><div className="eyebrow"><span className="live-dot"/> CONHEÇA A SCHINAYDER</div><h1>Escolhas inteligentes.<br/><span>Experiências melhores.</span></h1><p>Descubra produtos selecionados para acompanhar seu dia a dia.</p><button className="btn btn-primary">Explorar produtos <ChevronRight size={16}/></button></div><div className="hero-orb orb-one"/><div className="hero-orb orb-two"/><div className="hero-grid"/></div><div className="store-products-head"><div><div className="eyebrow">CURADORIA SCHINAYDER</div><h2>Encontre o que combina com você.</h2></div><div className="store-tabs">{["Destaques","Mais vendidos","Novidades"].map(t=><button className={tab===t?"selected":""} onClick={()=>setTab(t)} key={t}>{t}</button>)}</div></div><div className="store-product-grid">{products.map((p,i)=><div className="store-product" key={p.sku}><div className={`store-product-art art-${i}`}><Package size={44}/><span>PRODUTO</span></div><div className="store-product-info"><small>{p.tag.toUpperCase()}</small><b>{p.name}</b><strong>{p.price}</strong><button className="btn btn-secondary">Ver detalhes <ArrowUpRight size={14}/></button></div></div>)}</div><div className="store-disclaimer">Esta é uma prévia visual. Produtos, preços e disponibilidade são demonstrativos.</div></div>
+}
