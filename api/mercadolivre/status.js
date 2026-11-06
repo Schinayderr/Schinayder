@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   try {
     const base = SUPABASE_URL.replace(/\/$/, "");
     const response = await fetch(base + "/rest/v1/schinayder_mercadolivre_tokens?store_key=eq.primary&select=seller_id,expires_at,updated_at", {
-      headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: "Bearer " + SUPABASE_SERVICE_ROLE_KEY }
+      headers: { apikey: SUPABASE_SERVICE_ROLE_KEY }
     });
     if (!response.ok) throw new Error("status_lookup_failed");
     const rows = await response.json(); const account = rows[0];
