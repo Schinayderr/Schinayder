@@ -57,7 +57,3 @@ export default async function handler(req, res) {
     clearCookies(res); return res.redirect(302, "/?ml_error=connection_failed");
   }
 }
-
-    clearCookies(res); return res.redirect(302, "/?ml_error=connection_failed");
-  }
-}
