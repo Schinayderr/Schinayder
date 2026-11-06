@@ -49,11 +49,15 @@ export default async function handler(req, res) {
     };
     const base = SUPABASE_URL.replace(/\/$/, "");
     const saved = await fetch(base + "/rest/v1/schinayder_mercadolivre_tokens?on_conflict=store_key", {
-      method: "POST", headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: "Bearer " + SUPABASE_SERVICE_ROLE_KEY, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(record)
+      method: "POST", headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(record)
     });
     if (!saved.ok) throw new Error("Secure token storage failed");
     clearCookies(res); return res.redirect(302, "/?ml_connected=1");
   } catch {
+    clearCookies(res); return res.redirect(302, "/?ml_error=connection_failed");
+  }
+}
+
     clearCookies(res); return res.redirect(302, "/?ml_error=connection_failed");
   }
 }
